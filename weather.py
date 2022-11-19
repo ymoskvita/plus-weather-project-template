@@ -24,10 +24,13 @@ def convert_date(iso_string):
     Returns:
         A date formatted like: Weekday Date Month Year e.g. Tuesday 06 July 2021
     """
-    pass
+    date = datetime.fromisoformat(iso_string)
+    return date.strftime('%A %d %B %Y')
 
 
 def convert_f_to_c(temp_in_farenheit):
+    temp_in_c = round((float(temp_in_farenheit) - 32) / 1.8, 1)
+    return temp_in_c
     """Converts an temperature from farenheit to celcius.
 
     Args:
@@ -35,10 +38,14 @@ def convert_f_to_c(temp_in_farenheit):
     Returns:
         A float representing a temperature in degrees celcius, rounded to 1dp.
     """
-    pass
 
 
 def calculate_mean(weather_data):
+    sum = 0
+    for x in weather_data:
+        sum += float(x)
+    mean = sum / len(weather_data)
+    return mean
     """Calculates the mean value from a list of numbers.
 
     Args:
@@ -46,7 +53,6 @@ def calculate_mean(weather_data):
     Returns:
         A float representing the mean value.
     """
-    pass
 
 
 def load_data_from_csv(csv_file):
@@ -57,7 +63,17 @@ def load_data_from_csv(csv_file):
     Returns:
         A list of lists, where each sublist is a (non-empty) line in the csv file.
     """
-    pass
+    weather_data = []
+    with open(csv_file, encoding="utf-8") as csv_file:
+        reader = csv.reader(csv_file)
+        header = next(reader)
+        for line in reader:
+            if not line:
+                continue
+            line[1] = int(line[1])
+            line[2] = int(line[2])
+            weather_data.append(line)
+    return weather_data
 
 
 def find_min(weather_data):
@@ -68,7 +84,22 @@ def find_min(weather_data):
     Returns:
         The minium value and it's position in the list.
     """
-    pass
+    if not weather_data:
+        return ()
+    else:
+        min_value = float(9999999)
+        min_index = None
+        index = 0
+
+        for this_element in weather_data:
+            this_element = float(this_element)
+            if this_element <= min_value:
+                min_value = this_element
+                min_index = index
+
+            index += 1
+
+        return (float(min_value), min_index)
 
 
 def find_max(weather_data):
@@ -79,7 +110,21 @@ def find_max(weather_data):
     Returns:
         The maximum value and it's position in the list.
     """
-    pass
+    if not weather_data:
+        return ()
+    else:
+        max_value = 0
+        max_index = 0
+        index = 0
+
+        for this_element in weather_data:
+            this_element = float(this_element)
+            if this_element >= max_value:
+                max_value = this_element
+                max_index = index
+
+            index += 1
+        return (max_value, max_index)
 
 
 def generate_summary(weather_data):
@@ -90,7 +135,21 @@ def generate_summary(weather_data):
     Returns:
         A string containing the summary information.
     """
-    pass
+    quantity_of_days = len(weather_data)
+    list_of_dates = []
+    list_of_min_temp = []
+    list_of_max_temp = []
+    for item in weather_data:
+        list_of_dates.append(convert_date(item[0]))
+        list_of_min_temp.append(item[1])
+        list_of_max_temp.append(item[2])
+
+    lowest_temperature = find_min(list_of_min_temp)
+    highest_temperature = find_max(list_of_max_temp)
+    average_low = calculate_mean(list_of_min_temp)
+    average_high = calculate_mean(list_of_max_temp)
+
+    return (f"{quantity_of_days} Day Overview\n  The lowest temperature will be {format_temperature(convert_f_to_c(lowest_temperature[0]))}, and will occur on {list_of_dates[lowest_temperature[1]]}.\n  The highest temperature will be {format_temperature(convert_f_to_c(highest_temperature[0]))}, and will occur on {list_of_dates[highest_temperature[1]]}.\n  The average low this week is {format_temperature(convert_f_to_c(average_low))}.\n  The average high this week is {format_temperature(convert_f_to_c(average_high))}.\n")
 
 
 def generate_daily_summary(weather_data):
@@ -101,4 +160,7 @@ def generate_daily_summary(weather_data):
     Returns:
         A string containing the summary information.
     """
-    pass
+    result = ""
+    for item in weather_data:
+        result += f"---- {convert_date(item[0])} ----\n  Minimum Temperature: {format_temperature(convert_f_to_c(item[1]))}\n  Maximum Temperature: {format_temperature(convert_f_to_c(item[2]))}\n\n"
+    return result
